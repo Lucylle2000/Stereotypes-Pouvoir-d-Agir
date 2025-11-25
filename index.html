@@ -1,0 +1,2221 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atelier Interactif : 50 et +, Ton Expérience est ton Super-pouvoir</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #003366;
+            --success-color: #28a745;
+            --action-color: #fd7e14;
+            --info-color: #17a2b8;
+            --light-bg: #f4f7f9;
+            --white: #ffffff;
+            --text-color: #343a40;
+            --border-color: #dee2e6;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.8;
+            margin: 0;
+            padding-top: 80px;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+        }
+
+        /* Images illustratives */
+        .illustrative-banner {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+            margin-bottom: -20px;
+        }
+        
+        .module-illustration {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .top-bar {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            height: 70px;
+            box-sizing: border-box;
+        }
+        
+        .top-bar-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 15px;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .controls-cluster {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .controls { display: flex; gap: 15px; }
+        .controls button, .button-like {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        #saveBtn { background-color: var(--success-color); color: var(--white); }
+        #loadBtn { background-color: var(--info-color); color: var(--white); }
+        #resetBtn { background-color: #dc3545; color: var(--white); }
+        .controls button:hover, .button-like:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+        .save-status { margin-left: 20px; color: var(--success-color); font-weight: 600; opacity: 0; transition: opacity 0.5s; }
+
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 15px; }
+
+        header {
+            text-align: center;
+            padding: 30px;
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        header h1 { color: var(--secondary-color); font-size: 2.6em; font-weight: 700; margin: 20px 0 0 0; position: relative; z-index: 1; }
+        header p { font-size: 1.2em; color: var(--primary-color); font-weight: 300; position: relative; z-index: 1; }
+
+        .module {
+            background-color: var(--white);
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        
+        .accordion-header {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 25px 30px;
+            text-align: left;
+            font-size: 2em;
+            font-weight: 600;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+        .accordion-header .icon { font-size: 1.5em; margin-right: 15px; }
+        .accordion-header::after {
+            content: '▼';
+            font-size: 0.6em;
+            transition: transform 0.3s ease;
+        }
+        .module.active .accordion-header::after {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+            padding: 0 30px;
+        }
+        .module.active .accordion-content {
+            max-height: 10000px; 
+            overflow: visible;
+            padding: 0 30px 30px 30px;
+        }
+
+        .module h3 { font-size: 1.5em; color: var(--primary-color); margin-top: 40px; }
+
+        .info-box, .conseil-box, .action-box, .exemples-box, .practice-box { padding: 20px; margin: 25px 0; border-radius: 8px; border-left: 5px solid; }
+        .info-box { background-color: #eef7ff; border-left-color: var(--info-color); }
+        .conseil-box { background-color: #eaf6eb; border-left-color: var(--success-color); }
+        .action-box { background-color: #fff8e1; border-left-color: var(--action-color); }
+        .exemples-box { background-color: #f3e5f5; border-left-color: #8e44ad; }
+        .practice-box { background-color: #e0f7fa; border-left-color: #00796b; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .stat-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card h4 {
+            margin-top: 0;
+            color: var(--secondary-color);
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .stat-card p {
+            font-size: 0.95em;
+            color: #555;
+            margin: 0;
+        }
+        .stat-highlight {
+            font-weight: 700;
+            color: var(--action-color);
+        }
+
+        /* Photo Langage Styles */
+        .photo-langage-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .suggested-photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        .suggested-photo {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+        .suggested-photo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border-color: var(--primary-color);
+        }
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+        }
+        .drop-zone:hover, .drop-zone.drag-over {
+            background-color: #eef7ff;
+            border-color: var(--primary-color);
+        }
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .photo-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .photo-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #eee;
+        }
+        .photo-card-content {
+            padding: 15px;
+        }
+        .photo-card textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .photo-card .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .photo-card .delete-btn:hover {
+            background: #c82333;
+        }
+
+        /* Video Library Styles */
+        .video-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .video-input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            min-width: 200px;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .video-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .video-card-footer {
+            padding: 10px;
+            text-align: center;
+        }
+        .video-card .delete-video-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .suggested-videos-list {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            margin-top: 15px;
+        }
+        .suggested-video-item {
+            flex: 0 0 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        .suggested-video-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .suggested-video-item img {
+            width: 100%;
+            height: 112px;
+            object-fit: cover;
+        }
+        .suggested-video-item p {
+            font-size: 0.85em;
+            padding: 8px;
+            margin: 0;
+            background: white;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        /* Chart Styles */
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+
+        .transformation-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .transformation-table th, .transformation-table td { border: 1px solid var(--border-color); padding: 15px; text-align: left; vertical-align: top; }
+        .transformation-table th { background-color: #e9ecef; color: var(--secondary-color); font-weight: 600; }
+        .transformation-table strong { color: var(--secondary-color); }
+
+        .slider-container { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
+        input[type="range"] { flex-grow: 1; -webkit-appearance: none; appearance: none; height: 8px; background: #ddd; border-radius: 5px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: var(--primary-color); border-radius: 50%; cursor: pointer; }
+        .slider-value { font-weight: 600; font-size: 1.2em; color: var(--primary-color); min-width: 30px; text-align: center; }
+
+        .action-item, .checklist-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
+        .action-item input[type="checkbox"], .checklist-item input[type="checkbox"] { width: 20px; height: 20px; margin-top: 5px; flex-shrink: 0; }
+        .action-item textarea, .practice-box textarea, #trainingFocus { width: 100%; min-height: 60px; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-family: 'Poppins', sans-serif; box-sizing: border-box; }
+        .message-template { background-color: #eef; padding: 15px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 2000;
+            display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 5px 25px rgba(0,0,0,0.2); width: 90%; max-width: 450px;
+        }
+        .modal-content h2 { color: var(--secondary-color); margin-top: 0; }
+        .modal-content input[type="text"] { width: 80%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1em; margin: 15px 0 25px 0; }
+        .modal-content button { padding: 12px 30px; border: none; border-radius: 8px; background-color: var(--primary-color); color: white; font-size: 1em; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
+        
+        #cvDropZone {
+            border: 2px dashed var(--border-color); border-radius: 8px; padding: 20px; text-align: center;
+            cursor: pointer; transition: background-color 0.3s, border-color 0.3s;
+        }
+        #cvDropZone.drag-over { background-color: #eef7ff; border-color: var(--primary-color); }
+        #cvDropZone p { margin: 0; color: #6c757d; }
+        
+        .generated-cv-section {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 40px;
+        }
+        .cv-template-container { 
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-top: 20px;
+        }
+        .cv-template { 
+            border: 1px solid var(--border-color); 
+            padding: 30px; 
+            border-radius: 8px; 
+            background: var(--white); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .cv-template:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .loading-spinner, .error-message { text-align: center; padding: 20px; font-style: italic; color: var(--text-color); }
+        .error-message { color: #dc3545; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; }
+
+        .prompt-box {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            position: relative;
+            display: none;
+            border: 2px solid var(--primary-color);
+        }
+        .prompt-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .prompt-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .prompt-label {
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+        }
+
+        .drop-status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            text-align: center;
+            display: none;
+        }
+        .drop-status.success {
+            background-color: #eaf6eb;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+        .drop-status.info {
+            background-color: #eef7ff;
+            border: 1px solid #b8daff;
+            color: #004085;
+            display: block;
+        }
+
+        .star-practice-container {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        .star-practice-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .star-practice-row .input-group {
+            flex: 1;
+        }
+        .star-practice-row label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        .star-practice-row textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        .delete-row-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2em;
+            line-height: 32px;
+            text-align: center;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease;
+        }
+        .delete-row-btn:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+             .top-bar-content {
+                justify-content: center;
+            }
+            .star-practice-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .delete-row-btn {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                width: 28px;
+                height: 28px;
+                line-height: 28px;
+                font-size: 1em;
+            }
+        }
+
+        @media print {
+            body { padding-top: 0; margin: 0; }
+            .top-bar, .modal-overlay, .container > header, .module:not(.print-section), .accordion-header, .controls, .save-status { 
+                display: none; 
+            }
+            .container { margin: 0; padding: 0; max-width: 100%;}
+            .print-section { 
+                display: block !important; 
+                box-shadow: none; 
+                border: none;
+                margin: 0;
+            }
+            .print-section .accordion-content { 
+                max-height: none; 
+                padding: 0; 
+                overflow: visible;
+            }
+            .print-section .cv-template { 
+                border: none; 
+                padding: 0; 
+                box-shadow: none;
+            }
+            .print-section .cv-template button {
+                display: none;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="modal-overlay" id="nameModal">
+        <div class="modal-content">
+            <h2>Bienvenue dans votre atelier interactif !</h2>
+            <p>Pour personnaliser votre expérience, veuillez entrer votre prénom.</p>
+            <input type="text" id="userNameInput" placeholder="Votre prénom">
+            <button id="submitNameBtn">Commencer</button>
+        </div>
+    </div>
+
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="controls-cluster">
+                <div class="controls">
+                    <button id="saveBtn" class="button-like">💾 Sauvegarder</button>
+                    <button id="loadBtn" class="button-like">🔄 Charger</button>
+                    <button id="resetBtn" class="button-like">🗑️ Réinitialiser</button>
+                </div>
+                <span class="save-status" id="saveStatus"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <img src="https://placehold.co/1000x250/0056b3/ffffff?text=Atelier+Senior+:+Expérience+et+Succès" alt="Bannière atelier senior" class="illustrative-banner">
+            <h1>Atelier Interactif : 50 et +</h1>
+            <p>Transforme ton expérience en ton plus grand atout stratégique.</p>
+        </header>
+
+        <main id="accordionContainer">
+            <section id="module0" class="module">
+                <button class="accordion-header" aria-expanded="false" aria-controls="content-module0">
+                    <span id="welcome-title">Bienvenue ! Vos Objectifs...</span>
+                </button>
+                <div id="content-module0" class="accordion-content">
+                    <p>Cet atelier est un espace pour vous réarmer de confiance et d'outils concrets. Nous allons bien au-delà du simple CV pour transformer votre perception de la recherche d'emploi.</p>
+                    <ul style="list-style-type: '• '; padding-left: 20px;">
+                        <li><strong>Reprendre le Pouvoir :</strong> Cesser de subir les préjugés pour devenir l'acteur principal de votre carrière.</li>
+                        <li><strong>Maîtriser votre Discours :</strong> Apprendre à raconter votre histoire professionnelle de manière percutante et positive.</li>
+                        <li><strong>Identifier votre Valeur Ajoutée Unique :</strong> Mettre en lumière ce que vous seul(e) pouvez apporter à une entreprise.</li>
+                        <li><strong>Construire un Plan d'Action Personnalisé :</strong> Repartir avec des étapes claires, réalisables et motivantes.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="moduleContext" class="module">
+                <button class="accordion-header" aria-expanded="false" aria-controls="content-moduleContext">
+                    <span><span class="icon">📊</span>Le Contexte Actuel : Pourquoi Votre Profil est Plus Pertinent que Jamais</span>
+                </button>
+                <div id="content-moduleContext" class="accordion-content">
+                    <p>Avant de plonger dans les outils, il est essentiel de comprendre le terrain de jeu. Loin des idées reçues, les chiffres montrent une réalité encourageante et pleine d'opportunités.</p>
+                    
+                    <img src="https://placehold.co/900x200/eaf6eb/28a745?text=Seniors+actifs+et+valorisés+en+entreprise" alt="Seniors en entreprise" class="module-illustration">
+
+                    <div class="stats-grid">
+                        <div class="stat-card" style="border-top-color: var(--success-color);">
+                            <h4>Une force de travail en croissance</h4>
+                            <p>Le taux d'emploi des 55-64 ans est passé de 32% en 2000 à <span class="stat-highlight">56,9% en 2022</span>. Vous n'êtes pas une exception, vous êtes une part croissante et indispensable de l'économie.</p>
+                        </div>
+                        
+                        <div class="stat-card" style="border-top-color: var(--info-color);">
+                            <h4>Une tendance de fond</h4>
+                            <p>D'ici 2035, <span class="stat-highlight">50% de la population</span> en Europe aura plus de 45 ans. Les entreprises qui ignorent les talents seniors se privent de la moitié de leur vivier de compétences.</p>
+                        </div>
+                        
+                        <div class="stat-card" style="border-top-color: var(--action-color);">
+                            <h4>Des atouts reconnus</h4>
+                            <p>Une étude IPSOS révèle que recruteurs et candidats s'accordent sur les 3 atouts majeurs des seniors : <span class="stat-highlight">l'expérience, l'expertise et l'autonomie</span>. Ce sont vos piliers.</p>
+                        </div>
+                    </div>
+
+                    <div class="conseil-box" style="background-color: #eaf6eb; border-left-color: #28a745; display: flex; gap: 15px; align-items: center;">
+                         <span style="font-size: 2em;">💡</span>
+                         <p style="margin: 0;"><strong>La conclusion ?</strong> Le marché a besoin de vous. Notre mission aujourd'hui n'est pas de vous "vendre" malgré votre âge, mais de vous aider à articuler la valeur immense que votre parcours apporte.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="modulePhotoLangage" class="module">
+                <button class="accordion-header" aria-expanded="false" aria-controls="content-modulePhotoLangage">
+                    <span><span class="icon">📸</span>Photo-Langage : Se Raconter en Images</span>
+                </button>
+                <div id="content-modulePhotoLangage" class="accordion-content">
+                    <p>Une image vaut mille mots. Utilisez cet espace pour choisir ou importer des photos qui illustrent <strong>votre personnalité</strong>, <strong>votre état d'esprit actuel</strong>, ou <strong>votre vision de la place des seniors</strong>.</p>
+                    <p><em>Cet outil vous aidera à vous présenter et à briser la glace lors de l'atelier.</em></p>
+                    
+                    <div class="photo-langage-container">
+                        <div class="photo-source-section">
+                            <h4 style="color: var(--primary-color);">1. Inspiration : Choisissez parmi nos suggestions</h4>
+                            <p style="font-size: 0.9em; color: #666;">Cliquez sur une image pour l'ajouter à votre planche.</p>
+                            <div class="suggested-photos-grid" id="suggestedPhotosGrid">
+                                <img src="https://placehold.co/400x300/FF5733/ffffff?text=Activité+et+Joie" class="suggested-photo" data-desc="Activité et Joie" alt="Seniors actifs">
+                                <img src="https://placehold.co/400x300/33FF57/ffffff?text=Santé+:+Soin+et+Expérience" class="suggested-photo" data-desc="Santé : Soin et Expérience" alt="Infirmière senior">
+                                <img src="https://placehold.co/400x300/3357FF/ffffff?text=Agriculture+:+Terre+et+Racines" class="suggested-photo" data-desc="Agriculture : Terre et Racines" alt="Agriculteur">
+                                <img src="https://placehold.co/400x300/FF33A8/ffffff?text=Industrie+:+Précision+Technique" class="suggested-photo" data-desc="Industrie : Précision Technique" alt="Femme en usine">
+                                <img src="https://placehold.co/400x300/A833FF/ffffff?text=Mécanique+:+Expertise+Manuelle" class="suggested-photo" data-desc="Mécanique : Expertise Manuelle" alt="Mécanicien">
+                                <img src="https://placehold.co/400x300/33FFF5/ffffff?text=Bâtiment+:+Bâtir+l'avenir" class="suggested-photo" data-desc="Bâtiment : Bâtir l'avenir" alt="Ouvrier chantier">
+                                <img src="https://placehold.co/400x300/FF8C33/ffffff?text=Logistique+:+Maillon+essentiel" class="suggested-photo" data-desc="Logistique : Maillon essentiel" alt="Logistique">
+                                <img src="https://placehold.co/400x300/8CFF33/ffffff?text=Armée+:+Service+et+Discipline" class="suggested-photo" data-desc="Armée : Service et Discipline" alt="Militaire">
+                                <img src="https://placehold.co/400x300/338CFF/ffffff?text=Commerce+:+Relation+Client" class="suggested-photo" data-desc="Commerce : Relation Client" alt="Vente">
+                                <img src="https://placehold.co/400x300/FF338C/ffffff?text=Bureau+:+Compétence+avant+tout" class="suggested-photo" data-desc="Bureau : Compétence avant tout" alt="Femme en fauteuil roulant">
+                                <img src="https://placehold.co/400x300/8C33FF/ffffff?text=Tech+:+Modernité+et+Style" class="suggested-photo" data-desc="Tech : Modernité et Style" alt="Femme tatouée tech">
+                                <img src="https://placehold.co/400x300/33FF8C/ffffff?text=Services+:+L'indispensable" class="suggested-photo" data-desc="Services : L'indispensable" alt="Service nettoyage">
+                                <img src="https://placehold.co/400x300/FF5733/ffffff?text=Leadership+:+Transmission" class="suggested-photo" data-desc="Leadership : Transmission" alt="Réunion équipe">
+                                <img src="https://placehold.co/400x300/33FF57/ffffff?text=Administration+:+Rigueur" class="suggested-photo" data-desc="Administration : Rigueur" alt="Femme au bureau">
+                                <img src="https://placehold.co/400x300/3357FF/ffffff?text=Nature+:+Sérénité" class="suggested-photo" data-desc="Nature : Sérénité" alt="Nature forêt">
+                                <img src="https://placehold.co/400x300/FF33A8/ffffff?text=Défis+:+Sommets" class="suggested-photo" data-desc="Défis : Sommets" alt="Montagne">
+                            </div>
+                        </div>
+
+                        <div class="photo-upload-section">
+                            <h4 style="color: var(--primary-color);">2. Ou importez vos propres images</h4>
+                            <div id="photoDropZone" class="drop-zone">
+                                <p style="margin:0;">Glissez une image ici ou <strong>cliquez pour sélectionner</strong> un fichier depuis votre appareil.</p>
+                                <input type="file" id="photoUploadInput" accept="image/*" style="display:none">
+                            </div>
+                        </div>
+
+                        <div class="photo-selection-section">
+                            <h4 style="color: var(--action-color); border-bottom: 2px solid var(--action-color); display: inline-block; padding-bottom: 5px;">3. Ma Sélection (Photo-Langage)</h4>
+                            <p>Décrivez pourquoi vous avez choisi ces images (un mot-clé, une émotion, un argument contre un stéréotype...).</p>
+                            <div id="photoSelectionContainer" class="selection-grid">
+                                <div style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px; font-style: italic;" id="emptySelectionMsg">
+                                    Aucune image sélectionnée pour le moment.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="video-library-section">
+                            <h4 style="color: #d35400; border-bottom: 2px solid #d35400; display: inline-block; padding-bottom: 5px;">4. Ma Bibliothèque Vidéo & Inspirations</h4>
+                            <p>Constituez votre vidéothèque : tutoriels, conférences inspirantes, témoignages. Ajoutez des liens YouTube ou choisissez parmi nos suggestions.</p>
+                            
+                            <div class="video-input-group">
+                                <input type="text" id="videoUrlInput" placeholder="Collez un lien YouTube ici (ex: https://www.youtube.com/watch?v=...)">
+                                <button id="addVideoBtn" class="button-like" style="background-color: #d35400; color: white;">+ Ajouter la vidéo</button>
+                            </div>
+                            
+                            <div id="userVideoContainer" class="video-grid">
+                                <div style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px; font-style: italic;" id="emptyVideoMsg">
+                                    Aucune vidéo ajoutée. Commencez par en ajouter une ou choisissez une suggestion ci-dessous.
+                                </div>
+                            </div>
+
+                            <div class="video-suggestions" style="margin-top: 30px; background: #fff5f0; padding: 15px; border-radius: 8px;">
+                                <h5 style="color: #d35400; margin-top: 0;">📺 Suggestions "Inspiration & Emploi Senior" (YouTube France)</h5>
+                                <p style="font-size: 0.9em;">Cliquez sur une vidéo pour l'ajouter à votre bibliothèque et la visionner.</p>
+                                <div class="suggested-videos-list" id="suggestedVideosList">
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="module1" class="module">
+                <button class="accordion-header" aria-expanded="false" aria-controls="content-module1">
+                     <span id="module1-title"><span class="icon">🎯</span>Ton Diagnostic Personnel</span>
+                </button>
+                <div id="content-module1" class="accordion-content">
+                    <p>Commençons par un état des lieux honnête. Cet outil est ton miroir : il t'aidera à voir clairement tes forces et les domaines où tu peux progresser. Il n'y a ni bonne ni mauvaise réponse.</p>
+                    
+                    <article class="questionnaire-item">
+                        <h4>Confiance et État d'Esprit</h4>
+                        <p><strong>1. Sur une échelle de 1 à 10, quel est ton niveau de confiance en ta capacité à retrouver un emploi qui te correspond ?</strong><br><em>(Pourquoi c'est important : La confiance est contagieuse. Si tu crois en toi, le recruteur sera plus enclin à le faire aussi.)</em></p>
+                        <div class="slider-container">
+                            <span>1</span><input type="range" id="confidenceSlider" min="1" max="10" value="5"><span>10</span><span class="slider-value" id="confidenceValue">5</span>
+                        </div>
+                    </article>
+
+                    <article class="questionnaire-item">
+                        <p><strong>2. Sur une échelle de 1 à 10, comment évalues-tu ta résilience face aux défis (silence, refus) ?</strong><br><em>(Pourquoi c'est important : La résilience est la clé pour durer et ne pas se décourager.)</em></p>
+                        <div class="slider-container">
+                            <span>1</span><input type="range" id="resilienceSlider" min="1" max="10" value="5"><span>10</span><span class="slider-value" id="resilienceValue">5</span>
+                        </div>
+                    </article>
+
+                    <h4>Valorisation et Discours</h4>
+                    <article class="questionnaire-item">
+                        <p><strong>3. Sur une échelle de 1 à 10, à quel point es-tu au clair sur tes 3 plus grandes forces / compétences-clés ?</strong><br><em>(Pourquoi c'est important : Si tu ne sais pas ce que tu vends, personne ne l'achètera.)</em></p>
+                        <div class="slider-container">
+                            <span>1</span><input type="range" id="valueSlider" min="1" max="10" value="5"><span>10</span><span class="slider-value" id="valueValue">5</span>
+                        </div>
+                    </article>
+
+                    <article class="questionnaire-item">
+                        <p><strong>4. Sur une échelle de 1 à 10, quelle est ton aisance à illustrer tes compétences par des exemples concrets (méthode STAR) ?</strong><br><em>(Pourquoi c'est important : Les preuves sont plus puissantes que les affirmations.)</em></p>
+                        <div class="slider-container">
+                            <span>1</span><input type="range" id="storytellingSlider" min="1" max="10" value="5"><span>10</span><span class="slider-value" id="storytellingValue">5</span>
+                        </div>
+                    </article>
+
+                    <h4>Stratégie et Outils</h4>
+                    <article class="questionnaire-item">
+                        <p><strong>5. Sur une échelle de 1 à 10, quelle note donnerais-tu à la pertinence et au modernisme de ton CV actuel ?</strong><br><em>(Pourquoi c'est important : C'est ta première impression. Il doit être une bande-annonce alléchante de tes compétences.)</em></p>
+                        <div class="slider-container">
+                            <span>1</span><input type="range" id="cvSlider" min="1" max="10" value="5"><span>10</span><span class="slider-value" id="cvValue">5</span>
+                        </div>
+                    </article>
+
+                    <article class="questionnaire-item">
+                        <p><strong>6. Sur une échelle de 1 à 10, évalue ton utilisation stratégique de ton réseau professionnel.</strong><br><em>(Pourquoi c'est important : Plus de 70% des postes sont pourvus via le marché caché. Ton réseau est ta porte d'entrée.)</em></p>
+                        <div class="slider-container">
+                            <span>1</span><input type="range" id="networkSlider" min="1" max="10" value="5"><span>10</span><span class="slider-value" id="networkValue">5</span>
+                        </div>
+                    </article>
+                    <div class="action-box">
+                        <h4 id="analysis-title">💡 Première Analyse et Premier Pas</h4>
+                        <p>Regarde tes scores ci-dessous. Célèbre tes points forts ! Pour les scores plus bas, considère-les non pas comme des faiblesses, mais comme tes plus grandes opportunités de progression.</p>
+                        
+                        <div class="chart-container">
+                            <canvas id="scoreChart"></canvas>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 15px;">
+                            <button id="saveSnapshotBtn" class="button-like" style="background-color: var(--secondary-color); color: white;">📸 Enregistrer ce diagnostic dans mon suivi</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="module2" class="module">
+                 <button class="accordion-header" aria-expanded="false" aria-controls="content-module2">
+                    <span><span class="icon">🧠</span>Décoder le Marché et Transformer les Perceptions</span>
+                </button>
+                <div id="content-module2" class="accordion-content">
+                    <p>C'est ici que nous effectuons le travail le plus important : changer ta perspective. Nous allons prendre chaque idée reçue et la transformer en une preuve de ta valeur.</p>
+                    
+                    <div class="info-box">
+                         <h3>Le Tableau de Transformation : Des Stéréotypes aux Atouts Stratégiques</h3>
+                         <p>Voici comment "recadrer" les craintes les plus communes des recruteurs.</p>
+                         <table class="transformation-table">
+                            <thead>
+                                <tr>
+                                    <th>Stéréotype / Crainte du Recruteur</th>
+                                    <th>Ta Réalité / Ton Atout Stratégique</th>
+                                </tr>
+                            </thead>
+                             <tbody>
+                                 <tr>
+                                     <td>"Il/Elle sera résistant(e) au changement."</td>
+                                     <td><strong>Adaptabilité Éprouvée :</strong> Tu as vécu de multiples changements (technologiques, organisationnels, économiques). Ta capacité d'adaptation n'est pas théorique, elle est prouvée par des décennies de carrière.</td>
+                                 </tr>
+                                 <tr>
+                                     <td>"Il/Elle va coûter cher."</td>
+                                     <td><strong>Rentabilité Immédiate :</strong> Ton autonomie rapide, ton expertise et ta capacité à éviter les erreurs de débutant représentent un gain de temps et d'argent considérable pour l'entreprise. Tu es un investissement, pas un coût.</td>
+                                 </tr>
+                                 <tr>
+                                     <td>"Il/Elle aura du mal avec un manager plus jeune."</td>
+                                     <td><strong>Intelligence Relationnelle :</strong> Tu sais collaborer et faire réussir ton manager, quel que soit son âge. Ton objectif est la réussite du projet, pas les questions d'ego. Tu peux même devenir un mentor discret.</td>
+                                 </tr>
+                                 <tr>
+                                     <td>"Il/Elle n'est pas à jour technologiquement."</td>
+                                     <td><strong>Apprentissage Ciblé :</strong> Tu sais apprendre ce qui est utile et pertinent pour le poste, sans te disperser. Tu te formes pour résoudre des problèmes concrets, ce qui est un gage d'efficacité.</td>
+                                 </tr>
+                             </tbody>
+                         </table>
+                    </div>
+
+                     <div class="exemples-box">
+                        <h3>Atelier : L'Argumentaire "Anti-Préjugés" – Tes Réponses Clés</h3>
+                        
+                        <p><strong>Question 1 : "Nous avons une équipe très jeune et dynamique. Pensez-vous pouvoir vous y intégrer ?"</strong></p>
+                        <ul>
+                            <li><strong>Réponse "Collaboration" :</strong> "J'apprécie énormément la collaboration intergénérationnelle. Dans mon expérience, la confrontation des idées entre des profils expérimentés et des visions plus nouvelles est ce qui crée le plus de valeur. Je suis curieux d'apprendre de leur agilité et je peux leur apporter mon recul sur des situations complexes."</li>
+                            <li><strong>Réponse "Focus Projet" :</strong> "Pour moi, l'âge n'est pas un sujet. Ce qui compte, c'est la compétence, le respect mutuel et l'objectif commun. J'ai toujours travaillé avec des personnes de tous âges et ce qui nous a toujours unis, c'est la volonté de faire avancer le projet."</li>
+                        </ul>
+
+                        <p><strong>Question 2 : "Ce poste implique d'utiliser de nouveaux logiciels que vous ne connaissez pas. N'est-ce pas un problème ?"</strong></p>
+                         <ul>
+                            <li><strong>Réponse "Preuve par l'Exemple" :</strong> "C'est une excellente question. Au cours de ma carrière, j'ai vu arriver l'email, Internet, les CRM... À chaque fois, je me suis formé rapidement. Par exemple, chez [Ancienne entreprise], j'ai dû maîtriser le logiciel [Nom du logiciel] en moins de deux semaines pour un projet crucial. Ma méthode est simple : je me concentre sur l'essentiel et je pratique. Je suis confiant dans ma capacité à maîtriser vos outils."</li>
+                            <li><strong>Réponse "Motivation" :</strong> "Au contraire, c'est une source de motivation ! Apprendre de nouveaux outils est ce qui permet de rester pertinent et efficace. Je suis très curieux de découvrir les vôtres et de voir comment ils peuvent optimiser mon travail."</li>
+                        </ul>
+                    </div>
+                    <div class="practice-box">
+                        <h3 id="practice-title">À toi de jouer !</h3>
+                        <p><strong>Situation :</strong> L'intervieweur te dit : <em>"Votre dernier poste remonte à plus d'un an, pourquoi cette longue période d'inactivité ?"</em></p>
+                        <p>C'est ta chance de transformer une potentielle faiblesse en force. Comment réponds-tu ?</p>
+                        <textarea id="practiceResponse" placeholder="Rédige ici ta réponse en mettant en avant ce que tu as fait de positif pendant cette période (formation, veille, projets personnels...)..."></textarea>
+                        <button id="generatePracticeResponseBtn" class="button-like" style="background-color: var(--secondary-color); color: white; display: block; margin: 15px 0 0 0;">
+                            Générer le prompt pour obtenir une réponse modèle
+                        </button>
+                         <div id="practiceResponseResultContainer" class="prompt-box">
+                            <span class="prompt-label">Prompt à copier :</span>
+                            <div id="practiceResponsePrompt" class="prompt-content"></div>
+                            <div class="prompt-actions">
+                                <button class="button-like" style="background-color: var(--info-color); color: white;" onclick="copyToClipboard('practiceResponsePrompt')">📋 Copier le Prompt</button>
+                                <button class="button-like" style="background-color: #8e44ad; color: white;" onclick="openGemini()">🚀 Ouvrir Gemini</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="module3" class="module">
+                <button class="accordion-header" aria-expanded="false" aria-controls="content-module3">
+                    <span><span class="icon">🛠️</span>Ta Boîte à Outils Concrète</span>
+                </button>
+                <div id="content-module3" class="accordion-content">
+                    <h3>Outil 1 : Révolutionne ton CV – L'approche "Avant / Après"</h3>
+                    <p>Ton CV ne doit pas être un historique, mais une promesse de valeur. Passe du descriptif à l'impact.</p>
+                    <div class="conseil-box">
+                        <table class="transformation-table">
+                            <thead>
+                                <tr>
+                                    <th>Version "Avant" (descriptive)</th>
+                                    <th>Version "Après" (orientée résultats)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>- Gestion du portefeuille clients.</td>
+                                    <td>- <strong>Développement et fidélisation</strong> d'un portefeuille de 50 clients grands comptes, <strong>augmentant le chiffre d'affaires de 12% en un an</strong>.</td>
+                                </tr>
+                                <tr>
+                                    <td>- Organisation d'événements.</td>
+                                    <td>- <strong>Pilotage de l'organisation</strong> de 5 séminaires annuels (budget 80k€), <strong>améliorant la satisfaction des participants de 25%</strong> via un nouveau format.</td>
+                                </tr>
+                                <tr>
+                                    <td>- En charge de la comptabilité fournisseurs.</td>
+                                    <td>- <strong>Optimisation du processus</strong> de traitement des factures fournisseurs, <strong>réduisant les délais de paiement de 15 jours</strong> et améliorant les relations avec les partenaires clés.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                     <div class="conseil-box">
+                        <h4>Liste de Verbes d'Action pour t'inspirer</h4>
+                        <ul style="list-style-type: '→ '; padding-left: 20px;">
+                            <li><strong>Pour le leadership :</strong> Piloter, Coordonner, Superviser, Fédérer, Orchestrer, Animer, Inspirer...</li>
+                            <li><strong>Pour l'amélioration :</strong> Optimiser, Réduire, Augmenter, Améliorer, Rationaliser, Simplifier, Fiabiliser...</li>
+                            <li><strong>Pour la création :</strong> Développer, Concevoir, Mettre en place, Créer, Lancer, Initier, Bâtir, Structurer...</li>
+                        </ul>
+                    </div>
+
+                    <div class="star-generator-section" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 25px; margin: 30px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                            <span style="font-size: 2em; margin-right: 10px;">✨</span>
+                            <h3 style="margin: 0; color: var(--secondary-color);">Générateur de Phrases STAR Interactif</h3>
+                        </div>
+                        
+                        <img src="https://placehold.co/800x150/fff8e1/fd7e14?text=Méthode+STAR+:+Situation,+Tâche,+Action,+Résultat" alt="Méthode STAR illustration" class="module-illustration" style="height: 150px;">
+
+
+                        <p style="margin-bottom: 20px;">Utilisez ce formulaire pour construire vos preuves de réussite.</p>
+                        
+                        <div class="info-box" style="background-color: #eef7ff; border-left: 4px solid var(--primary-color); margin-bottom: 25px;">
+                            <strong>L'apport pédagogique : La Méthode STAR</strong>
+                            <p style="margin: 10px 0 0 0;">La méthode STAR structure vos expériences pour les rendre irréfutables :</p>
+                            <ul style="margin: 10px 0 0 20px;">
+                                <li><strong>S (Situation) :</strong> Le contexte de départ.</li>
+                                <li><strong>T (Tâche) :</strong> Votre objectif ou responsabilité.</li>
+                                <li><strong>A (Action) :</strong> Ce que VOUS avez fait (verbes d'action).</li>
+                                <li><strong>R (Résultat) :</strong> L'impact concret (chiffres, amélioration).</li>
+                            </ul>
+                        </div>
+
+                        <div class="star-form">
+                            <div style="margin-bottom: 15px;">
+                                <label for="starS" style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-color);">S (Situation) : Quel était le problème ?</label>
+                                <input type="text" id="starS" placeholder="Ex: Baisse des ventes de 15% sur la région Est." style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label for="starT" style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-color);">T (Tâche) : Quel était l'objectif ?</label>
+                                <input type="text" id="starT" placeholder="Ex: Redresser la barre en 6 mois." style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label for="starA" style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-color);">A (Action) : Qu'avez-vous fait concrètement ?</label>
+                                <input type="text" id="starA" placeholder="Ex: Réorganisation des tournées et formation de 2 juniors." style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;">
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label for="starR" style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-color);">R (Résultat) : Chiffres ou impact qualitatif ?</label>
+                                <input type="text" id="starR" placeholder="Ex: +18% de CA et satisfaction client en hausse." style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;">
+                            </div>
+                            
+                            <button id="generateStarBtn" class="button-like" style="background-color: var(--secondary-color); color: white; width: 100%; padding: 15px; font-size: 1.1em;">Générer ma phrase impactante</button>
+                        </div>
+
+                        <div id="starResult" style="display: none; margin-top: 25px; background: #f1f8e9; padding: 20px; border-radius: 8px; border: 1px solid #c5e1a5;">
+                            <div id="starOutput" style="color: #33691e; line-height: 1.6;"></div>
+                            <div style="margin-top: 15px; text-align: right;">
+                                <button id="copyStarBtn" style="background: none; border: none; color: var(--primary-color); cursor: pointer; font-weight: 600; text-decoration: underline;">Copier le texte</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Outil 2 : Entraînez-vous à la méthode "Avant / Après"</h3>
+                    <p>Transforme une simple tâche en un résultat quantifiable. Utilise cet atelier pour t'entraîner.</p>
+                    <div class="star-practice-container">
+                        <div id="starPracticeRows">
+                            </div>
+                        <button id="addStarRowBtn" class="button-like" style="background-color: var(--primary-color); color: white; margin-top: 15px;">+ Ajouter un exemple</button>
+                    </div>
+
+                    <h3>Outil 3 : Le Réseautage Facile – Modèles de Messages</h3>
+                    <p>La peur de la page blanche est le premier frein au réseautage. Voici des modèles pour briser la glace.</p>
+                    <div class="exemples-box">
+                        <h4>Modèle 1 : Contacter un ancien collègue (LinkedIn ou email)</h4>
+                        <div class="message-template">Bonjour [Prénom],<br><br>J'espère que tu vas bien. Je suis tombé sur ton profil et j'ai vu avec plaisir ton évolution chez [Entreprise actuelle]. Félicitations !<br><br>De mon côté, je suis actuellement en recherche active d'un poste de [Type de poste]. Connaissant bien mon travail chez [Ancienne entreprise commune], je serais ravi d'avoir ton avis sur mon projet et si, par hasard, tu entendais parler d'opportunités dans ton réseau.<br><br>Serait-il possible de s'appeler 15 minutes la semaine prochaine ?<br><br>Au plaisir d'avoir de tes nouvelles,<br>[Ton Nom]</div>
+
+                        <h4 style="margin-top: 30px;">Modèle 2 : Contacter une personne inconnue dans une entreprise cible</h4>
+                        <div class="message-template">Bonjour [Prénom Nom],<br><br>Je me permets de vous contacter car votre parcours chez [Entreprise cible] est particulièrement inspirant. Je suis moi-même [Votre profession] avec une solide expérience dans [Votre secteur/compétence clé] et je suis très admiratif de [mentionner un projet, une valeur de l'entreprise].<br><br>Je ne souhaite pas vous déranger avec une candidature, mais j'aimerais beaucoup bénéficier de votre regard d'expert. Accepteriez-vous un bref échange de 15 minutes pour me parler des défis actuels de votre secteur ?<br><br>En vous remerciant pour votre temps,<br>Cordialement,<br>[Ton Nom]</div>
+                    </div>
+                    
+                    <h3>Outil 4 : Optimise ton Profil LinkedIn en 5 Points Clés</h3>
+                    <p>Ton profil LinkedIn est ta vitrine professionnelle permanente. Assure-toi qu'il soit impeccable avec cette checklist interactive.</p>
+                    <div class="conseil-box">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="linkedinCheck1">
+                            <label for="linkedinCheck1"><strong>Mon titre est une promesse, pas un statut.</strong> Il doit dire ce que tu apportes, pas seulement ce que tu es. (Ex: "Spécialiste en logistique internationale | Optimisation des flux et réduction des coûts" plutôt que "En recherche d'emploi").</label>
+                        </div>
+                         <div class="checklist-item">
+                            <input type="checkbox" id="linkedinCheck2">
+                            <label for="linkedinCheck2"><strong>Ma section "infos" est un pitch percutant.</strong> Elle doit raconter ton histoire, tes compétences clés et ce que tu recherches, en utilisant les mots-clés de ton secteur.</label>
+                        </div>
+                         <div class="checklist-item">
+                            <input type="checkbox" id="linkedinCheck3">
+                            <label for="linkedinCheck3"><strong>Mes expériences sont illustrées par des réussites chiffrées.</strong> Comme pour le CV, utilise la méthode "Après" pour chaque poste significatif.</label>
+                        </div>
+                         <div class="checklist-item">
+                            <input type="checkbox" id="linkedinCheck4">
+                            <label for="linkedinCheck4"><strong>J'ai au moins 3 recommandations récentes.</strong> Sollicite poliment d'anciens collègues ou managers. Une recommandation est une preuve sociale puissante.</label>
+                        </div>
+                         <div class="checklist-item">
+                            <input type="checkbox" id="linkedinCheck5">
+                            <label for="linkedinCheck5"><strong>Mon profil est actif.</strong> Je commente ou partage du contenu pertinent au moins une fois par semaine pour rester visible auprès de mon réseau.</label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="module4" class="module">
+                <button class="accordion-header" aria-expanded="false" aria-controls="content-module4">
+                    <span><span class="icon">✍️</span>Ton Plan d'Action Personnalisé</span>
+                </button>
+                 <div id="content-module4" class="accordion-content">
+                    <p>La transformation commence par le premier pas. Définis tes propres actions, sauvegarde-les, et coche-les une fois réalisées. C'est ta feuille de route vers le succès.</p>
+                    <div class="action-box">
+                        <h3>Mes Prochains Pas Stratégiques</h3>
+                        <div class="action-item"><input type="checkbox" id="action1_check"><textarea id="action1_text" placeholder="Ex: D'ici [Date], réécrire ma section 'Résumé' sur LinkedIn en utilisant la méthode du recadrage pour mettre en avant ma sérénité face à la pression."></textarea></div>
+                        <div class="action-item"><input type="checkbox" id="action2_check"><textarea id="action2_text" placeholder="Ex: D'ici [Date], identifier 3 réussites chiffrables de mon dernier poste et les intégrer à mon CV."></textarea></div>
+                        <div class="action-item"><input type="checkbox" id="action3_check"><textarea id="action3_text" placeholder="Ex: D'ici [Date], envoyer 2 messages de réseautage authentique en utilisant les modèles ci-dessus."></textarea></div>
+                        <div class="action-item"><input type="checkbox" id="action4_check"><textarea id="action4_text" placeholder="Ex: Planifier une activité ressourçante cette semaine (sans lien avec la recherche d'emploi) pour maintenir mon énergie."></textarea></div>
+                    </div>
+                 </div>
+            </section>
+            
+            <section id="module5" class="module">
+                 <button class="accordion-header" aria-expanded="false" aria-controls="content-module5">
+                    <span><span class="icon">📆</span>Historique de ta Progression</span>
+                </button>
+                 <div id="content-module5" class="accordion-content">
+                    <p>Retrouve ici les dates de tes précédents diagnostics pour mesurer le chemin parcouru.</p>
+                    
+                    <div class="chart-container">
+                        <canvas id="historyChart"></canvas>
+                    </div>
+
+                    <div class="action-box">
+                        <h4>Tes Enregistrements</h4>
+                        <div id="snapshotHistory" style="margin-top: 20px; font-size: 1em; line-height: 2;"></div>
+                    </div>
+                </div>
+            </section>
+
+             <section id="module6" class="module">
+                <button class="accordion-header" aria-expanded="false" aria-controls="content-module6">
+                    <span><span class="icon">🤖</span>Ton Assistant Carrière IA</span>
+                </button>
+                <div id="content-module6" class="accordion-content">
+                    <h3>Outil 1 : Analyse et Amélioration de CV par l'IA</h3>
+                    <p>Collez le contenu de votre CV actuel ci-dessous ou déposez un fichier. Notre générateur de prompt créera une commande experte à envoyer à l'IA pour analyser et réécrire votre CV.</p>
+                    
+                    <img src="https://placehold.co/800x200/f0f0f0/0056b3?text=Analyse+Intelligente+de+votre+CV+par+l'IA" alt="IA analyse CV" class="module-illustration" style="height: 150px; object-fit: cover;">
+
+                    <div class="action-box">
+                         <div id="cvDropZone">
+                            <p>Glissez-déposez un fichier (PDF, Word, Txt) ici, ou collez le texte de votre CV ci-dessous.</p>
+                        </div>
+                        <div id="cvDropStatus" class="drop-status"></div>
+                        <textarea id="cvInputArea" placeholder="Collez ici l'intégralité du texte de votre CV..." style="width: 100%; min-height: 250px; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-family: 'Poppins', sans-serif; margin-top: 15px;"></textarea>
+                        <button id="analyzeCvBtn" class="button-like" style="background-color: var(--primary-color); color: white; display: block; margin: 15px auto 0 auto;">
+                            🚀 Générer le Prompt d'Analyse de CV
+                        </button>
+                    </div>
+
+                    <div id="cvAnalysisResultContainer" class="prompt-box">
+                        <span class="prompt-label">Prompt à copier pour l'analyse CV :</span>
+                        <div id="cvAnalysisPrompt" class="prompt-content"></div>
+                        <div class="prompt-actions">
+                            <button class="button-like" style="background-color: var(--info-color); color: white;" onclick="copyToClipboard('cvAnalysisPrompt')">📋 Copier le Prompt</button>
+                            <button class="button-like" style="background-color: #8e44ad; color: white;" onclick="openGemini()">🚀 Ouvrir Gemini</button>
+                        </div>
+                    </div>
+
+
+                    <h3 style="margin-top: 40px;">Outil 2 : Plan de Formation sur Mesure par l'IA</h3>
+                    <p>Sur la base de votre diagnostic, demandez à l'IA de vous construire un plan pour monter en compétences.</p>
+                    <div class="action-box">
+                        <h4>Quelles compétences souhaitez-vous renforcer ?</h4>
+                        <textarea id="trainingFocus" placeholder="Ex: Améliorer ma présence sur LinkedIn et moderniser mon CV..."></textarea>
+                        <button id="generateTrainingPlanBtn" class="button-like" style="background-color: var(--primary-color); color: white; display: block; margin: 15px auto 0 auto;">
+                            💡 Générer le Prompt du Plan de Formation
+                        </button>
+                    </div>
+
+                    <div id="trainingPlanResultContainer" class="prompt-box">
+                         <span class="prompt-label">Prompt à copier pour le plan de formation :</span>
+                         <div id="trainingPlanPrompt" class="prompt-content"></div>
+                         <div class="prompt-actions">
+                            <button class="button-like" style="background-color: var(--info-color); color: white;" onclick="copyToClipboard('trainingPlanPrompt')">📋 Copier le Prompt</button>
+                            <button class="button-like" style="background-color: #8e44ad; color: white;" onclick="openGemini()">🚀 Ouvrir Gemini</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+             <section id="module7" class="module">
+                <button class="accordion-header" aria-expanded="false" aria-controls="content-module7">
+                    <span><span class="icon">🚀</span>Ton Coaching Final par l'IA</span>
+                </button>
+                <div id="content-module7" class="accordion-content">
+                     <h3>🎉 Bravo ! Tu es maintenant prêt(e) pour l'étape suivante : le coaching par l'IA</h3>
+                     <div class="info-box">
+                        <p>Félicitations pour avoir complété cet atelier ! Tu as maintenant une vision claire de tes forces et de tes axes de développement. Pour aller plus loin, nous avons préparé un "prompt" (une instruction) sur mesure pour une IA comme Gemini, basé sur tes propres résultats au diagnostic.</p>
+                        <p>Copie ce prompt et colle-le dans une conversation avec Gemini pour recevoir un plan de coaching et de formation ultra-personnalisé, créé juste pour toi.</p>
+                     </div>
+                     <button id="generatePromptBtn" class="button-like" style="background-color: var(--primary-color); color: white; display: block; margin: 20px auto;">Générer mon prompt de coaching personnalisé</button>
+                     
+                     <div id="promptResultContainer" class="prompt-box">
+                        <span class="prompt-label">Ton Prompt de Coaching Final :</span>
+                        <pre id="finalPrompt" class="prompt-content"></pre>
+                        <div class="prompt-actions">
+                            <button id="copyPromptBtn" class="button-like" style="background-color: var(--info-color); color: white;">📋 Copier le Prompt</button>
+                            <button id="launchGeminiBtn" class="button-like" style="background-color: #8e44ad; color: white;">🚀 Lancer mon coaching sur Gemini</button>
+                        </div>
+                     </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // ----- ÉLÉMENTS DU DOM -----
+        const sliders = document.querySelectorAll('input[type="range"]');
+        const actionTextareas = document.querySelectorAll('.action-item textarea');
+        const actionCheckboxes = document.querySelectorAll('.action-item input[type="checkbox"]');
+        const linkedinCheckboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+        const practiceTextarea = document.getElementById('practiceResponse');
+        const cvInputArea = document.getElementById('cvInputArea');
+        const trainingFocus = document.getElementById('trainingFocus');
+
+        // STAR Generator Elements
+        const starS = document.getElementById('starS');
+        const starT = document.getElementById('starT');
+        const starA = document.getElementById('starA');
+        const starR = document.getElementById('starR');
+        const generateStarBtn = document.getElementById('generateStarBtn');
+        const starResult = document.getElementById('starResult');
+        const starOutput = document.getElementById('starOutput');
+        const copyStarBtn = document.getElementById('copyStarBtn');
+
+        const starInputs = [starS, starT, starA, starR].filter(el => el);
+
+        const allStaticInputs = [...sliders, ...actionTextareas, ...actionCheckboxes, practiceTextarea, cvInputArea, trainingFocus, ...linkedinCheckboxes, ...starInputs];
+
+        const saveBtn = document.getElementById('saveBtn');
+        const loadBtn = document.getElementById('loadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const saveStatus = document.getElementById('saveStatus');
+
+        const nameModal = document.getElementById('nameModal');
+        const userNameInput = document.getElementById('userNameInput');
+        const submitNameBtn = document.getElementById('submitNameBtn');
+
+        const saveSnapshotBtn = document.getElementById('saveSnapshotBtn');
+        const chartCanvas = document.getElementById('scoreChart');
+        let myScoreChart;
+        let historyChart; // Variable for the history chart
+
+        const starPracticeRowsContainer = document.getElementById('starPracticeRows');
+        const addStarRowBtn = document.getElementById('addStarRowBtn');
+        let starRowCounter = 0;
+
+        // ----- PHOTO LANGAGE ELEMENTS -----
+        const suggestedPhotos = document.querySelectorAll('.suggested-photo');
+        const photoUploadInput = document.getElementById('photoUploadInput');
+        const photoDropZone = document.getElementById('photoDropZone');
+        const photoSelectionContainer = document.getElementById('photoSelectionContainer');
+        const emptySelectionMsg = document.getElementById('emptySelectionMsg');
+
+        let selectedPhotos = [];
+
+        // ----- VIDEO LIBRARY ELEMENTS -----
+        const videoUrlInput = document.getElementById('videoUrlInput');
+        const addVideoBtn = document.getElementById('addVideoBtn');
+        const userVideoContainer = document.getElementById('userVideoContainer');
+        const emptyVideoMsg = document.getElementById('emptyVideoMsg');
+        const suggestedVideosList = document.getElementById('suggestedVideosList');
+
+        let selectedVideos = [];
+
+        // List of suggested videos (ID + Title + Thumbnail)
+        const suggestedVideosData = [
+            { id: 'mwKITSYbCec', title: 'Seniors : Quels atouts pour l\'entreprise ?' },
+            { id: 'UvLuWcx53lk', title: 'Trouver un emploi après 50 ans' },
+            { id: 've_t1Eo-eYU', title: 'Convaincre un recruteur quand on est senior' },
+            { id: 'fLLtubsrCCk', title: 'Valoriser son expérience : les clés' },
+            { id: 'rQ5EPt2vRRY', title: 'Coaching : Rebondir après 45/50 ans' },
+            { id: 'MHoEZkPw3uk', title: 'Seniors et Emploi : Stop aux clichés' }
+        ];
+
+        // ----- ACCORDION LOGIC -----
+        const accordionContainer = document.getElementById('accordionContainer');
+        const modules = accordionContainer ? accordionContainer.querySelectorAll('.module') : [];
+
+        function toggleAccordion(moduleEl) {
+            const wasActive = moduleEl.classList.contains('active');
+            
+            // Close all modules
+            modules.forEach(m => m.classList.remove('active'));
+
+            // If the clicked module was not active, open it
+            if (!wasActive) {
+                moduleEl.classList.add('active');
+                localStorage.setItem('activeModuleId', moduleEl.id);
+            } else {
+                localStorage.removeItem('activeModuleId');
+            }
+        }
+
+        modules.forEach(moduleEl => {
+            const header = moduleEl.querySelector('.accordion-header');
+            if (header) {
+                header.addEventListener('click', () => toggleAccordion(moduleEl));
+            }
+        });
+
+        // Restore active module on load
+        const activeModuleId = localStorage.getItem('activeModuleId');
+        if (activeModuleId) {
+            const activeModule = document.getElementById(activeModuleId);
+            if (activeModule) {
+                activeModule.classList.add('active');
+            }
+        } else {
+            // Open the first module by default if none is saved
+            const firstModule = document.getElementById('module0');
+            if (firstModule) {
+                firstModule.classList.add('active');
+            }
+        }
+
+
+        // ----- FONCTIONS UTILITAIRES -----
+        function updateSliderValue(slider) {
+            const valueSpan = document.getElementById(slider.id.replace('Slider', 'Value'));
+            if (valueSpan) valueSpan.textContent = slider.value;
+        }
+
+        function showStatus(message, duration = 3000) {
+            if (!saveStatus) return;
+            saveStatus.textContent = message;
+            saveStatus.style.opacity = '1';
+            setTimeout(() => { saveStatus.style.opacity = '0'; }, duration);
+        }
+
+        function personalizeContent(name) {
+            if (!name) return;
+            const welcomeTitle = document.getElementById('welcome-title');
+            if(welcomeTitle) welcomeTitle.innerHTML = `Bienvenue ${name} ! Vos Objectifs...`;
+            
+            const module1Title = document.getElementById('module1-title');
+            if(module1Title) module1Title.innerHTML = `<span class="icon">🎯</span>Ton Diagnostic Personnel, ${name}`;
+            
+            const analysisTitle = document.getElementById('analysis-title');
+            if(analysisTitle) analysisTitle.innerHTML = `💡 ${name}, ta Première Analyse`;
+            
+            const practiceTitle = document.getElementById('practice-title');
+            if(practiceTitle) practiceTitle.innerHTML = `À toi de jouer, ${name} !`;
+        }
+        
+        // Fonctions globales pour les boutons de prompt
+        window.copyToClipboard = function(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            const text = element.innerText || element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Prompt copié ! Vous pouvez maintenant le coller dans Gemini.");
+            }).catch(err => {
+                console.error('Erreur lors de la copie :', err);
+                // Fallback pour les anciens navigateurs
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("Copy");
+                textArea.remove();
+                alert("Prompt copié !");
+            });
+        };
+
+        window.openGemini = function() {
+            window.open('https://gemini.google.com/', '_blank');
+        };
+
+
+        // ----- PHOTO LANGAGE LOGIC -----
+        function renderSelectedPhotos() {
+            if (!photoSelectionContainer) return;
+
+            // Clear current display except empty msg
+            Array.from(photoSelectionContainer.children).forEach(child => {
+                if (child.id !== 'emptySelectionMsg') {
+                    photoSelectionContainer.removeChild(child);
+                }
+            });
+
+            if (selectedPhotos.length === 0) {
+                if (emptySelectionMsg) emptySelectionMsg.style.display = 'block';
+            } else {
+                if (emptySelectionMsg) emptySelectionMsg.style.display = 'none';
+                
+                selectedPhotos.forEach((photo, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'photo-card';
+                    card.innerHTML = `
+                        <img src="${photo.src}" alt="Sélection ${index + 1}">
+                        <button class="delete-btn" data-id="${photo.id}">×</button>
+                        <div class="photo-card-content">
+                            <textarea placeholder="Pourquoi cette image ? (Ex: 'Ça représente ma capacité à rebondir...')" data-id="${photo.id}">${photo.note || ''}</textarea>
+                        </div>
+                    `;
+                    photoSelectionContainer.appendChild(card);
+                });
+
+                // Re-attach event listeners for deletes and text changes
+                photoSelectionContainer.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.target.getAttribute('data-id');
+                        removePhoto(id);
+                    });
+                });
+
+                photoSelectionContainer.querySelectorAll('textarea').forEach(area => {
+                    area.addEventListener('input', (e) => {
+                        const target = e.target;
+                        const id = target.getAttribute('data-id');
+                        const photo = selectedPhotos.find(p => p.id === id);
+                        if (photo) photo.note = target.value;
+                    });
+                });
+            }
+        }
+
+        function addPhoto(src, note = "") {
+            const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            selectedPhotos.push({ id, src, note });
+            renderSelectedPhotos();
+        }
+
+        function removePhoto(id) {
+            selectedPhotos = selectedPhotos.filter(p => p.id !== id);
+            renderSelectedPhotos();
+        }
+
+        // Suggested photos click
+        suggestedPhotos.forEach(img => {
+            img.addEventListener('click', () => {
+                const src = img.src;
+                addPhoto(src);
+            });
+        });
+
+        // File Upload logic
+        if (photoDropZone && photoUploadInput) {
+            photoDropZone.addEventListener('click', () => photoUploadInput.click());
+            
+            photoDropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                photoDropZone.classList.add('drag-over');
+            });
+            photoDropZone.addEventListener('dragleave', () => {
+                photoDropZone.classList.remove('drag-over');
+            });
+            photoDropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                photoDropZone.classList.remove('drag-over');
+                if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+
+            photoUploadInput.addEventListener('change', () => {
+                if (photoUploadInput.files && photoUploadInput.files.length > 0) {
+                    handleFiles(photoUploadInput.files);
+                }
+            });
+        }
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        if (e.target && e.target.result) {
+                            addPhoto(e.target.result);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // ----- VIDEO LIBRARY LOGIC -----
+
+        function extractYoutubeId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length == 11) ? match[7] : false;
+        }
+
+        function renderUserVideos() {
+            if (!userVideoContainer) return;
+
+            // Clear current videos except msg
+            Array.from(userVideoContainer.children).forEach(child => {
+                if (child.id !== 'emptyVideoMsg') {
+                    userVideoContainer.removeChild(child);
+                }
+            });
+
+            if (selectedVideos.length === 0) {
+                if (emptyVideoMsg) emptyVideoMsg.style.display = 'block';
+            } else {
+                if (emptyVideoMsg) emptyVideoMsg.style.display = 'none';
+
+                selectedVideos.forEach((video) => {
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    card.innerHTML = `
+                        <button class="delete-video-btn" data-id="${video.id}" title="Supprimer">×</button>
+                        <div class="video-wrapper">
+                            <iframe src="https://www.youtube.com/embed/${video.youtubeId}" allowfullscreen></iframe>
+                        </div>
+                    `;
+                    userVideoContainer.appendChild(card);
+                });
+
+                // Attach delete events
+                userVideoContainer.querySelectorAll('.delete-video-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.target.getAttribute('data-id');
+                        removeVideo(id);
+                    });
+                });
+            }
+        }
+
+        function addVideo(youtubeId) {
+            // Check if already added
+            if (selectedVideos.some(v => v.youtubeId === youtubeId)) {
+                alert("Cette vidéo est déjà dans votre bibliothèque.");
+                return;
+            }
+            const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            selectedVideos.push({ id, youtubeId });
+            renderUserVideos();
+        }
+
+        function removeVideo(id) {
+            selectedVideos = selectedVideos.filter(v => v.id !== id);
+            renderUserVideos();
+        }
+
+        function renderSuggestedVideos() {
+            if (!suggestedVideosList) return;
+            suggestedVideosList.innerHTML = '';
+            suggestedVideosData.forEach(video => {
+                const item = document.createElement('div');
+                item.className = 'suggested-video-item';
+                item.title = "Cliquez pour ajouter à votre bibliothèque";
+                // Use standard youtube thumbnail
+                item.innerHTML = `
+                    <img src="https://img.youtube.com/vi/${video.id}/mqdefault.jpg" alt="${video.title}">
+                    <p>${video.title}</p>
+                `;
+                item.addEventListener('click', () => {
+                    addVideo(video.id);
+                    // Scroll to library
+                    if(userVideoContainer) userVideoContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                });
+                suggestedVideosList.appendChild(item);
+            });
+        }
+
+        if (addVideoBtn && videoUrlInput) {
+            addVideoBtn.addEventListener('click', () => {
+                const url = videoUrlInput.value.trim();
+                if (url) {
+                    const videoId = extractYoutubeId(url);
+                    if (videoId) {
+                        addVideo(videoId);
+                        videoUrlInput.value = '';
+                    } else {
+                        alert("Lien YouTube invalide. Veuillez coller un lien complet (ex: https://www.youtube.com/watch?v=...)");
+                    }
+                }
+            });
+        }
+
+
+        // ----- STAR PRACTICE -----
+        function addStarPracticeRow(beforeText = '', afterText = '') {
+            if (!starPracticeRowsContainer) return;
+            starRowCounter++;
+            const row = document.createElement('div');
+            row.className = 'star-practice-row';
+            row.innerHTML = `
+                <div class="input-group">
+                    <label for="star-before-${starRowCounter}">Phrase "Avant" (descriptive) :</label>
+                    <textarea id="star-before-${starRowCounter}" class="star-before" placeholder="Ex: Gestion du portefeuille clients.">${beforeText}</textarea>
+                </div>
+                <div class="input-group">
+                    <label for="star-after-${starRowCounter}">Phrase "Après" (orientée résultats) :</label>
+                    <textarea id="star-after-${starRowCounter}" class="star-after" placeholder="Ex: Augmentation de 12% du CA en un an par la fidélisation d'un portefeuille de 50 clients grands comptes.">${afterText}</textarea>
+                </div>
+                <button class="delete-row-btn" aria-label="Supprimer cet exemple">&times;</button>
+            `;
+            starPracticeRowsContainer.appendChild(row);
+        }
+
+        if (addStarRowBtn) {
+            addStarRowBtn.addEventListener('click', () => addStarPracticeRow());
+        }
+
+        if (starPracticeRowsContainer) {
+            starPracticeRowsContainer.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.classList.contains('delete-row-btn')) {
+                    target.closest('.star-practice-row')?.remove();
+                }
+            });
+        }
+
+        // ----- LOGIQUE GÉNÉRATEUR STAR -----
+        if (generateStarBtn && starResult && starOutput && starS && starT && starA && starR) {
+            generateStarBtn.addEventListener('click', () => {
+                const s = starS.value.trim();
+                const t = starT.value.trim();
+                const a = starA.value.trim();
+                const r = starR.value.trim();
+
+                if (!s && !t && !a && !r) {
+                    alert("Remplissez au moins quelques champs pour générer une phrase.");
+                    return;
+                }
+
+                // Construction de la phrase STAR
+                let cvBullet = "";
+                if (a) cvBullet += `<strong>${a.charAt(0).toUpperCase() + a.slice(1)}</strong>`;
+                if (t) cvBullet += ` pour ${t}`;
+                if (s) cvBullet += ` (contexte : ${s})`;
+                if (r) cvBullet += `. Résultat : <strong>${r}</strong>.`;
+
+                let story = "";
+                story += `« Dans un contexte de ${s || '...'}, où l'objectif était de ${t || '...'}, j'ai ${a ? a.charAt(0).toLowerCase() + a.slice(1) : '...'}, ce qui a permis ${r ? r.charAt(0).toLowerCase() + r.slice(1) : '...'} »`;
+
+                starOutput.innerHTML = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>📝 Pour votre CV (Style Bullet Point) :</strong><br>
+                        ${cvBullet || "<em>Complétez les champs pour voir le résultat.</em>"}
+                    </div>
+                    <div>
+                        <strong>🗣️ Pour votre Entretien (Style Storytelling) :</strong><br>
+                        <em>${story}</em>
+                    </div>
+                `;
+                
+                starResult.style.display = 'block';
+            });
+        }
+
+        if (copyStarBtn && starOutput) {
+            copyStarBtn.addEventListener('click', () => {
+                // Create a temporary textarea to copy text without HTML tags
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = starOutput.innerText;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+                
+                const originalText = copyStarBtn.textContent;
+                copyStarBtn.textContent = "✅ Copié !";
+                setTimeout(() => copyStarBtn.textContent = originalText, 2000);
+            });
+        }
+
+        // ----- GESTION DES DONNÉES -----
+        function saveProgress() {
+            const progressData = {};
+            allStaticInputs.forEach(input => {
+                const el = input;
+                if(el && el.id) {
+                        progressData[el.id] = (el.type === 'checkbox') ? el.checked : el.value;
+                }
+            });
+
+            const starRowsData = [];
+            document.querySelectorAll('.star-practice-row').forEach(row => {
+                const before = row.querySelector('.star-before').value;
+                const after = row.querySelector('.star-after').value;
+                starRowsData.push({ before, after });
+            });
+            progressData.starPractice = starRowsData;
+            
+            // Save Photo Langage Data
+            progressData.photoSelection = selectedPhotos;
+            // Save Video Library Data
+            progressData.videoSelection = selectedVideos;
+            
+            if (localStorage.getItem('workshopUserName')) {
+                progressData.userName = localStorage.getItem('workshopUserName');
+            }
+            
+            try {
+                localStorage.setItem('workshopProgressSeniors', JSON.stringify(progressData));
+                showStatus("Progrès de la session sauvegardé !");
+            } catch (e) {
+                console.error(e);
+                if (e.name === 'QuotaExceededError') {
+                    alert("Attention : Vos images sont trop volumineuses pour la sauvegarde locale. Seul le texte a été sauvegardé. Essayez avec des images plus légères.");
+                    // Fallback: save without photos if quota exceeded
+                    progressData.photoSelection = [];
+                    localStorage.setItem('workshopProgressSeniors', JSON.stringify(progressData));
+                }
+            }
+        }
+
+        function loadProgress() {
+            const savedData = localStorage.getItem('workshopProgressSeniors');
+            if (savedData) {
+                const progressData = JSON.parse(savedData);
+                allStaticInputs.forEach(input => {
+                    const el = input;
+                    if (el && el.id && progressData[el.id] !== undefined) {
+                        if (el.type === 'checkbox') {
+                            el.checked = progressData[el.id];
+                        } else {
+                            el.value = progressData[el.id];
+                        }
+                        if (el.type === 'range') {
+                            updateSliderValue(el);
+                        }
+                    }
+                });
+
+                if (progressData.starPractice && Array.isArray(progressData.starPractice)) {
+                    if (starPracticeRowsContainer) {
+                        starPracticeRowsContainer.innerHTML = '';
+                        progressData.starPractice.forEach(item => {
+                            addStarPracticeRow(item.before, item.after);
+                        });
+                    }
+                }
+                
+                // Load Photo Langage
+                if (progressData.photoSelection && Array.isArray(progressData.photoSelection)) {
+                    selectedPhotos = progressData.photoSelection;
+                    renderSelectedPhotos();
+                }
+
+                    // Load Video Library
+                if (progressData.videoSelection && Array.isArray(progressData.videoSelection)) {
+                    selectedVideos = progressData.videoSelection;
+                    renderUserVideos();
+                }
+
+                if (progressData.userName) {
+                    localStorage.setItem('workshopUserName', progressData.userName);
+                    personalizeContent(progressData.userName);
+                }
+                
+                showStatus("Session précédente chargée.", 2000);
+                initializeChart();
+                initializeHistoryChart(); // Initialize history chart after loading 
+            } else {
+                showStatus("Aucune donnée de session trouvée.", 2000);
+            }
+        }
+
+        function resetProgress() {
+            if (confirm("Êtes-vous sûr de vouloir effacer toute votre progression ? Cette action est irréversible.")) {
+                localStorage.removeItem('workshopProgressSeniors');
+                localStorage.removeItem('workshopUserName');
+                localStorage.removeItem('workshopScoreHistory');
+                localStorage.removeItem('activeModuleId');
+                window.location.reload();
+            }
+        }
+
+        // ----- GESTION DE LA PERSONNALISATION -----
+        function handleNameSubmission() {
+            if (!userNameInput || !nameModal) return;
+            const userName = userNameInput.value.trim();
+            if (userName) {
+                localStorage.setItem('workshopUserName', userName);
+                personalizeContent(userName);
+                nameModal.classList.remove('visible');
+            } else {
+                alert("Veuillez entrer un prénom.");
+            }
+        }
+
+        // ----- GESTION DU DIAGRAMME D'ÉVOLUTION (MODULE 1) -----
+        function getSliderValues() {
+            return [
+                parseInt(document.getElementById('confidenceSlider').value) || 5,
+                parseInt(document.getElementById('resilienceSlider').value) || 5,
+                parseInt(document.getElementById('valueSlider').value) || 5,
+                parseInt(document.getElementById('storytellingSlider').value) || 5,
+                parseInt(document.getElementById('cvSlider').value) || 5,
+                parseInt(document.getElementById('networkSlider').value) || 5
+            ];
+        }
+
+        function updateChart() {
+            if (!myScoreChart) return;
+            const currentData = getSliderValues();
+            // Update the live dataset (index 0)
+            myScoreChart.data.datasets[0].data = currentData;
+            myScoreChart.update();
+        }
+
+        function initializeChart() {
+            const history = JSON.parse(localStorage.getItem('workshopScoreHistory') || '[]');
+            const labels = ['Confiance', 'Résilience', 'Valorisation', 'Storytelling', 'CV', 'Réseau'];
+            const currentData = getSliderValues();
+            
+            const datasets = [];
+
+            // Dataset 1: Current Live Values
+            datasets.push({
+                label: 'Mon Profil Actuel (En direct)',
+                data: currentData,
+                fill: true,
+                backgroundColor: 'rgba(0, 86, 179, 0.2)',
+                borderColor: 'rgb(0, 86, 179)',
+                pointBackgroundColor: 'rgb(0, 86, 179)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(0, 86, 179)',
+                order: 1
+            });
+            
+            // Dataset 2: Last Snapshot (if exists) for comparison
+            if (history.length > 0) {
+                    const lastSnapshot = history[history.length - 1];
+                    datasets.push({
+                    label: `Dernier enregistrement (${new Date(lastSnapshot.date).toLocaleDateString('fr-FR')})`,
+                    data: Object.values(lastSnapshot.scores),
+                    fill: false,
+                    backgroundColor: 'rgba(200, 200, 200, 0.1)',
+                    borderColor: 'rgba(100, 100, 100, 0.5)',
+                    pointBackgroundColor: 'rgba(100, 100, 100, 0.5)',
+                    borderDash: [5, 5],
+                    order: 2
+                });
+            }
+
+            const data = { labels: labels, datasets: datasets };
+
+            if (myScoreChart) myScoreChart.destroy();
+            
+            const ctx = document.getElementById('scoreChart');
+            if (!ctx) return;
+
+            myScoreChart = new Chart(ctx, {
+                type: 'radar',
+                data: data,
+                options: {
+                    elements: { line: { borderWidth: 3 } },
+                    scales: { 
+                        r: { 
+                            beginAtZero: true, 
+                            max: 10, 
+                            min: 0,
+                            ticks: { stepSize: 1 }
+                        } 
+                    },
+                    plugins: { 
+                        legend: { position: 'bottom' } 
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Update history list display text
+            const historyDiv = document.getElementById('snapshotHistory');
+            if(historyDiv) {
+                if(history.length > 0) {
+                    historyDiv.innerHTML = history.map(s => `📅 <strong>${new Date(s.date).toLocaleDateString('fr-FR')} à ${new Date(s.date).toLocaleTimeString('fr-FR')}</strong>`).join('<br>');
+                } else {
+                    historyDiv.innerHTML = '<em>Aucun enregistrement pour le moment.</em>';
+                }
+            }
+        }
+
+        // ----- GESTION DU DIAGRAMME D'HISTORIQUE (MODULE 5) -----
+        function initializeHistoryChart() {
+            const history = JSON.parse(localStorage.getItem('workshopScoreHistory') || '[]');
+            const ctx = document.getElementById('historyChart');
+            
+            // If canvas doesn't exist, exit
+            if (!ctx) return;
+
+            // If no history, handle by clearing chart or showing empty state
+            if (history.length === 0) {
+                    if (historyChart) {
+                        historyChart.destroy();
+                        historyChart = undefined;
+                    }
+                    return;
+            }
+
+            const labels = ['Confiance', 'Résilience', 'Valorisation', 'Storytelling', 'CV', 'Réseau'];
+            
+            // Generate datasets for each historical snapshot with distinct colors
+            const datasets = history.map((snapshot, index) => {
+                const hue = (index * 137.5) % 360;
+                const color = `hsla(${hue}, 70%, 45%, 1)`;
+                const bgColor = `hsla(${hue}, 70%, 60%, 0.1)`;
+
+                return {
+                    label: new Date(snapshot.date).toLocaleDateString('fr-FR') + ' ' + new Date(snapshot.date).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}),
+                    data: Object.values(snapshot.scores),
+                    fill: true,
+                    backgroundColor: bgColor,
+                    borderColor: color,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: color,
+                    borderWidth: 2
+                };
+            });
+
+            if (historyChart) historyChart.destroy();
+
+            historyChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    elements: { line: { borderWidth: 2 } },
+                    scales: { 
+                        r: { 
+                            beginAtZero: true, 
+                            max: 10, 
+                            min: 0,
+                            ticks: { stepSize: 1 }
+                        } 
+                    },
+                    plugins: { 
+                        legend: { position: 'bottom' },
+                        title: {
+                            display: true,
+                            text: 'Évolution de vos compétences au fil du temps'
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function saveScoreSnapshot() {
+            const currentScores = {
+                confidence: document.getElementById('confidenceSlider').value,
+                resilience: document.getElementById('resilienceSlider').value,
+                value: document.getElementById('valueSlider').value,
+                storytelling: document.getElementById('storytellingSlider').value,
+                cv: document.getElementById('cvSlider').value,
+                network: document.getElementById('networkSlider').value
+            };
+            const history = JSON.parse(localStorage.getItem('workshopScoreHistory') || '[]');
+            history.push({ date: new Date().toISOString(), scores: currentScores });
+            localStorage.setItem('workshopScoreHistory', JSON.stringify(history));
+            showStatus("Diagnostic enregistré dans votre suivi !", 3000);
+            
+            initializeChart();
+            initializeHistoryChart();
+        }
+        if (saveSnapshotBtn) saveSnapshotBtn.addEventListener('click', saveScoreSnapshot);
+
+
+        // =================================================================
+        // ================= GESTION DES PROMPTS (SANS CLÉ API) ============
+        // =================================================================
+
+        // 1. PRACTICE RESPONSE PROMPT
+        const generatePracticeResponseBtn = document.getElementById('generatePracticeResponseBtn');
+        const practiceResponseResultContainer = document.getElementById('practiceResponseResultContainer');
+        const practiceResponsePrompt = document.getElementById('practiceResponsePrompt');
+
+        if (generatePracticeResponseBtn && practiceResponseResultContainer) {
+            generatePracticeResponseBtn.addEventListener('click', () => {
+                const userDraft = practiceTextarea.value.trim();
+                
+                const promptText = `*** INSTRUCTION POUR GEMINI ***
+
+CONTEXTE :
+Tu es un coach carrière expert, spécialisé dans l'accompagnement des cadres et seniors (50 ans et plus). Tu es bienveillant, stratégique et très orienté "psychologie du recrutement".
+Ton client est en simulation d'entretien. 
+La question posée par le recruteur est : "Votre dernier poste remonte à plus d'un an, pourquoi cette longue période d'inactivité ?"
+
+DONNÉES DU CANDIDAT (Ebauche de réponse) :
+"${userDraft || "[Le candidat n'a pas encore formulé de réponse précise, propose-lui des options standards]"}"
+
+TA MISSION :
+1. Analyse brièvement l'ébauche du candidat (si fournie) : est-elle défensive ? positive ? trop vague ?
+2. Rédige 3 VARIANTES de réponses modèles parfaites que le candidat pourrait utiliser, en adoptant un ton professionnel, serein et dynamique.
+   - Option A : L'approche "Formation et Montée en compétences" (focus sur ce qu'il a appris).
+   - Option B : L'approche "Projet Personnel / Bénévolat" (focus sur l'activité continue).
+   - Option C : L'approche "Pause Stratégique et Recherche ciblée" (focus sur la sélectivité et la motivation pour CE poste précis).
+
+CONTRAINTES :
+- Chaque réponse doit transformer le "vide" en "plein".
+- Ne jamais s'excuser d'être au chômage.
+- Utiliser un langage positif (éviter "chômage", "galère", préférer "période de transition", "consacré à...").
+- Terminer chaque réponse par une phrase de transition qui ramène la conversation sur le poste actuel (ex: "C'est pourquoi aujourd'hui, je suis pleinement disponible et opérationnel pour...").`;
+
+                practiceResponsePrompt.innerText = promptText;
+                practiceResponseResultContainer.style.display = 'block';
+            });
+        }
+
+        // 2. CV ANALYSIS PROMPT
+        const analyzeCvBtn = document.getElementById('analyzeCvBtn');
+        const cvAnalysisResultContainer = document.getElementById('cvAnalysisResultContainer');
+        const cvAnalysisPrompt = document.getElementById('cvAnalysisPrompt');
+        const cvDropZone = document.getElementById('cvDropZone');
+        const cvDropStatus = document.getElementById('cvDropStatus');
+
+        // (Drag & Drop logic remains the same)
+        if (cvDropZone) {
+            cvDropZone.addEventListener('dragover', (e) => { e.preventDefault(); cvDropZone.classList.add('drag-over'); });
+            cvDropZone.addEventListener('dragleave', () => { cvDropZone.classList.remove('drag-over'); });
+            cvDropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                cvDropZone.classList.remove('drag-over');
+                if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            if(cvInputArea) cvInputArea.value = event.target.result;
+                            if(cvDropStatus) { cvDropStatus.textContent = `Fichier "${file.name}" chargé !`; cvDropStatus.classList.add('success'); cvDropStatus.style.display = 'block'; }
+                        };
+                        reader.readAsText(file);
+                    } else {
+                        if(cvDropStatus) { cvDropStatus.textContent = `Format non supporté via le navigateur. Veuillez copier-coller le texte.`; cvDropStatus.classList.add('info'); cvDropStatus.style.display = 'block'; }
+                    }
+                }
+            });
+        }
+
+        if (analyzeCvBtn && cvAnalysisResultContainer) {
+            analyzeCvBtn.addEventListener('click', () => {
+                const cvText = cvInputArea.value.trim();
+                if (!cvText) { alert("Veuillez coller le texte de votre CV d'abord."); return; }
+
+                const promptText = `*** INSTRUCTION POUR GEMINI : AUDIT EXPERT DE CV SENIOR ***
+
+RÔLE :
+Agis comme un Directeur des Ressources Humaines (DRH) expérimenté et expert en "Personal Branding" pour les profils seniors. Tu connais parfaitement les attentes des recruteurs et le fonctionnement des logiciels de tri de CV (ATS).
+
+CONTEXTE :
+Voici le texte brut du CV d'un candidat senior :
+----- DÉBUT DU CV -----
+${cvText}
+----- FIN DU CV -----
+
+TA MISSION (EXHAUSTIVE) :
+Réalise un audit complet et sans concession de ce CV, structuré exactement comme suit :
+
+1. 📊 ANALYSE MACRO & PREMIÈRE IMPRESSION
+   - Quels sont les 3 points forts immédiats ?
+   - Quels sont les 3 "red flags" (points bloquants) majeurs (ex: dates floues, trop de détails, jargon obsolète) ?
+   - Score estimé de compatibilité ATS (sur 10) avec justification.
+
+2. ✍️ RÉÉCRITURE CIBLÉE (MÉTHODE STAR)
+   Choisis les 2 expériences professionnelles les plus significatives du CV et réécris-les complètement en remplaçant les listes de tâches par des accomplissements chiffrés.
+   - Exemple : Au lieu de "Gestion des ventes", écris "Pilotage d'une force de vente de 10 personnes, générant +15% de CA sur 2023".
+   *Si le CV manque de chiffres, INVENTE des métriques réalistes entre parenthèses pour montrer au candidat le type de données attendues.*
+
+3. 🧠 SECTION "PROFIL / RÉSUMÉ"
+   Rédige une proposition de paragraphe d'introduction (Profil) de 4-5 lignes. Ce texte doit être percutant, résumer l'expertise (pas juste les années d'expérience) et contenir les mots-clés stratégiques du secteur présumé.
+
+4. 🛡️ STRATÉGIE "SENIOR"
+   Identifie tout élément dans le CV qui pourrait inconsciemment activer des biais âgistes (ex: mentionner l'année du Bac si elle est lointaine, utiliser des termes technologiques désuets, adresse mail type 'wanadoo'). Propose une correction pour chaque point.
+
+FORMAT DE SORTIE : Markdown structuré, ton professionnel, encourageant mais direct.`;
+
+                cvAnalysisPrompt.innerText = promptText;
+                cvAnalysisResultContainer.style.display = 'block';
+            });
+        }
+
+        // 3. TRAINING PLAN PROMPT
+        const generateTrainingPlanBtn = document.getElementById('generateTrainingPlanBtn');
+        const trainingPlanResultContainer = document.getElementById('trainingPlanResultContainer');
+        const trainingPlanPrompt = document.getElementById('trainingPlanPrompt');
+
+        if (generateTrainingPlanBtn && trainingPlanResultContainer) {
+            generateTrainingPlanBtn.addEventListener('click', () => {
+                const focus = trainingFocus.value.trim();
+                if (!focus) { alert("Veuillez indiquer un sujet."); return; }
+
+                const promptText = `*** INSTRUCTION POUR GEMINI : INGÉNIERIE PÉDAGOGIQUE ***
+
+RÔLE :
+Tu es un Ingénieur Pédagogique Expert spécialisé dans la formation continue des adultes (Andragogie) et la reconversion professionnelle.
+
+DEMANDE DU CANDIDAT :
+"Je souhaite me former et monter en compétence sur le sujet suivant : ${focus}"
+
+TA MISSION :
+Construis un Plan de Formation Autonome intensif sur 4 semaines, conçu pour un professionnel expérimenté qui veut aller droit au but.
+
+LIVRABLE ATTENDU (Tableau Markdown) :
+
+1. 🎯 OBJECTIF PÉDAGOGIQUE GLOBAL
+   Définis en une phrase ce que l'apprenant saura FAIRE à la fin (compétence opérationnelle).
+
+2. 📚 RESSOURCES RECOMMANDÉES (Sourcing précis)
+   - Suggère 3 chaînes YouTube spécifiques ou vidéos précises (titres exacts si possible).
+   - Suggère 1 MOOC ou cours en ligne gratuit (Coursera, OpenClassrooms, LinkedIn Learning...).
+   - Suggère 1 livre ou article de référence incontournable.
+
+3. 📅 PROGRAMME HEBDOMADAIRE (4 Semaines)
+   - Semaine 1 (Fondamentaux) : Quoi lire/voir ? Quel petit exercice faire ?
+   - Semaine 2 (Approfondissement) : Pratique technique.
+   - Semaine 3 (Mise en situation) : Réalisation d'un mini-projet concret (décris le projet).
+   - Semaine 4 (Valorisation) : Comment "vendre" cette nouvelle compétence sur LinkedIn et le CV (propose la phrase exacte à ajouter au CV).
+
+4. ✅ TEST DE VALIDATION
+   Liste 3 questions techniques ou 1 exercice pratique que le candidat doit réussir pour s'auto-valider.`;
+
+                trainingPlanPrompt.innerText = promptText;
+                trainingPlanResultContainer.style.display = 'block';
+            });
+        }
+
+        // 4. FINAL COACHING PROMPT
+        const generatePromptBtn = document.getElementById('generatePromptBtn');
+        const promptResultContainer = document.getElementById('promptResultContainer');
+        const finalPrompt = document.getElementById('finalPrompt');
+        const copyPromptBtn = document.getElementById('copyPromptBtn');
+        const launchGeminiBtn = document.getElementById('launchGeminiBtn');
+
+        if (generatePromptBtn && promptResultContainer && finalPrompt) {
+            generatePromptBtn.addEventListener('click', () => {
+                const userName = localStorage.getItem('workshopUserName') || 'Professionnel Senior';
+                
+                // Récupération intelligente des scores faibles
+                const skillMap = {
+                    confidence: "Ma confiance en ma capacité à retrouver un emploi",
+                    resilience: "Ma résilience face aux refus",
+                    value: "Ma clarté sur ma valeur ajoutée unique",
+                    storytelling: "Ma capacité à raconter mes réussites (Storytelling)",
+                    cv: "La qualité et l'impact de mon CV",
+                    network: "Mon utilisation du Réseau"
+                };
+                
+                const scores = Object.keys(skillMap).map(key => ({
+                    id: key,
+                    text: skillMap[key],
+                    score: parseInt(document.getElementById(`${key}Slider`).value, 10)
+                }));
+
+                scores.sort((a, b) => a.score - b.score);
+                const weakPoints = scores.slice(0, 2); // Les 2 plus faibles
+
+                const promptText = `*** INSTRUCTION POUR GEMINI : COACHING CARRIÈRE STRATÉGIQUE ***
+
+RÔLE : 
+Tu es un Coach de Carrière Exécutif de haut niveau. Tu ne donnes pas des conseils génériques ("refais ton CV"), tu fournis des stratégies psychologiques et tactiques précises.
+
+PROFIL DU CLIENT :
+Nom : ${userName}
+Profil : Professionnel Senior (50 ans +)
+Points de douleur majeurs identifiés (auto-évaluation faible) :
+1. ${weakPoints[0].text} (Note: ${weakPoints[0].score}/10)
+2. ${weakPoints[1].text} (Note: ${weakPoints[1].score}/10)
+
+TA MISSION :
+Élabore une "Feuille de Route de Transformation" sur 30 jours pour résoudre spécifiquement ces 2 points faibles.
+
+STRUCTURE DE LA RÉPONSE ATTENDUE :
+
+PARTIE 1 : LE DIAGNOSTIC PSYCHOLOGIQUE (Analyse à froid)
+Explique au client pourquoi il ressent cette faiblesse sur ces points précis (mécanismes classiques chez les seniors : syndrome de l'imposteur, internalisation des stéréotypes, isolement...). Sois empathique mais analytique.
+
+PARTIE 2 : LE PLAN D'ATTAQUE (Actions contre-intuitives)
+Pour chaque point faible, propose 2 actions "Choc".
+*Exemple : Si le réseau est faible, ne pas dire "contactez des gens", mais "Identifiez 3 anciens collègues perdus de vue et envoyez-leur ce message précis : [Script]..."*
+
+PARTIE 3 : SCRIPTS ET TEMPLATES (Outils prêts à l'emploi)
+Rédige pour moi :
+- Un "Mantra" ou une affirmation à me répéter chaque matin pour booster la confiance.
+- Un script de réponse à une objection liée à mon âge.
+- Un modèle de message LinkedIn audacieux pour approcher un décideur.
+
+PARTIE 4 : KPI (Indicateurs de succès)
+Comment saurai-je dans 30 jours que j'ai réussi ? Donne-moi 3 critères mesurables.
+
+TON :
+Coach sportif de haut niveau : exigeant, précis, énergisant. Pas de jargon corporate vide.`;
+
+                finalPrompt.innerText = promptText;
+                promptResultContainer.style.display = 'block';
+            });
+        }
+
+        if (copyPromptBtn && finalPrompt) {
+            copyPromptBtn.addEventListener('click', () => {
+                window.copyToClipboard('finalPrompt');
+            });
+        }
+
+        if (launchGeminiBtn) {
+            launchGeminiBtn.addEventListener('click', () => {
+                window.openGemini();
+            });
+        }
+
+
+        // ----- INITIALISATION -----
+        if (saveBtn) saveBtn.addEventListener('click', saveProgress);
+        if (loadBtn) loadBtn.addEventListener('click', loadProgress);
+        if (resetBtn) resetBtn.addEventListener('click', resetProgress);
+
+        if (submitNameBtn) submitNameBtn.addEventListener('click', handleNameSubmission);
+        if (userNameInput) userNameInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleNameSubmission(); });
+
+        sliders.forEach(slider => {
+            updateSliderValue(slider);
+            slider.addEventListener('input', () => {
+                updateSliderValue(slider);
+                updateChart(); // Update chart in real-time
+            });
+        });
+
+        const savedName = localStorage.getItem('workshopUserName');
+        if (!savedName) {
+            if (nameModal) nameModal.classList.add('visible');
+        } else {
+            personalizeContent(savedName);
+        }
+
+        // Load initial data
+        if (localStorage.getItem('workshopProgressSeniors')) {
+            loadProgress();
+        } else {
+            addStarPracticeRow(); // Add one empty row on first load
+            initializeChart(); // Initialize chart even without saved data
+            initializeHistoryChart();
+        }
+
+        renderSuggestedVideos(); // Initialize suggested videos list
+
+        // Ensure chart renders correctly after layout settles
+        setTimeout(() => {
+            initializeChart();
+            initializeHistoryChart();
+        }, 500);
+    </script>
+</body>
+</html>
+```
